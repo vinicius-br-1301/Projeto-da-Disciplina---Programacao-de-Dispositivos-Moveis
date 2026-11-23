@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/enums.dart';
-import '../models/notes.dart';
-import '../viewmodels/notes_viewmodel.dart';
+import '../../domain/entities/enums.dart';
+import '../../domain/entities/notes.dart';
+import 'notes_view_model.dart';
 
-class NotesListView extends StatefulWidget {
-  const NotesListView({super.key});
+class NotesListScreen extends StatefulWidget {
+  const NotesListScreen({super.key});
 
   @override
-  State<NotesListView> createState() => _NotesListViewState();
+  State<NotesListScreen> createState() => _NotesListScreenState();
 }
 
-class _NotesListViewState extends State<NotesListView> {
+class _NotesListScreenState extends State<NotesListScreen> {
   final TextEditingController _buscaController = TextEditingController();
   PostItCat? _categoriaSelecionada;
 
@@ -115,7 +115,6 @@ class _NotesListViewState extends State<NotesListView> {
     return Scaffold(
       body: Column(
         children: [
-          // Barra de busca por título
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
             child: Row(
@@ -152,8 +151,6 @@ class _NotesListViewState extends State<NotesListView> {
               ],
             ),
           ),
-
-          // Filtros rápidos por categoria (PostItCat)
           SizedBox(
             height: 46,
             child: ListView(
@@ -187,8 +184,6 @@ class _NotesListViewState extends State<NotesListView> {
               ],
             ),
           ),
-
-          // Lista reativa conectada ao NotesViewModel
           Expanded(
             child: Consumer<NotesViewModel>(
               builder: (context, viewModel, child) {
@@ -239,7 +234,7 @@ class _NotesListViewState extends State<NotesListView> {
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
                     itemCount: viewModel.notes.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final note = viewModel.notes[index];
                       return _buildNoteCard(note);

@@ -2,24 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../models/campaign.dart';
-import '../models/enums.dart';
-import '../viewmodels/campaign_viewmodel.dart';
+import '../../domain/entities/campaign.dart';
+import '../../domain/entities/enums.dart';
+import 'campaign_view_model.dart';
 
-class CampaignListView extends StatefulWidget {
-  const CampaignListView({super.key});
+class CampaignListScreen extends StatefulWidget {
+  const CampaignListScreen({super.key});
 
   @override
-  State<CampaignListView> createState() => _CampaignListViewState();
+  State<CampaignListScreen> createState() => _CampaignListScreenState();
 }
 
-class _CampaignListViewState extends State<CampaignListView> {
+class _CampaignListScreenState extends State<CampaignListScreen> {
   final TextEditingController _buscaController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Carrega as campanhas logo após o primeiro frame ser montado
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CampaignViewModel>().carregarCampanhas();
     });
@@ -184,7 +183,6 @@ class _CampaignListViewState extends State<CampaignListView> {
     return Scaffold(
       body: Column(
         children: [
-          // Barra de filtro por título + atualizar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
@@ -221,8 +219,6 @@ class _CampaignListViewState extends State<CampaignListView> {
               ],
             ),
           ),
-
-          // Corpo reativo conectado ao CampaignViewModel
           Expanded(
             child: Consumer<CampaignViewModel>(
               builder: (context, viewModel, child) {
@@ -273,7 +269,7 @@ class _CampaignListViewState extends State<CampaignListView> {
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
                     itemCount: viewModel.campaigns.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final c = viewModel.campaigns[index];
                       return _buildCampaignCard(c, viewModel);

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/enums.dart';
-import '../models/notes.dart';
-import '../viewmodels/campaign_viewmodel.dart';
-import '../viewmodels/notes_viewmodel.dart';
+import '../../domain/entities/enums.dart';
+import '../../domain/entities/notes.dart';
+import '../campaign_screen/campaign_view_model.dart';
+import 'notes_view_model.dart';
 
-class NotesFormView extends StatefulWidget {
+class NotesFormScreen extends StatefulWidget {
   final Notes? note;
   final String? campaignIdInicial;
   final String? sessionIdInicial;
   final String? authorIdInicial;
 
-  const NotesFormView({
+  const NotesFormScreen({
     super.key,
     this.note,
     this.campaignIdInicial,
@@ -21,10 +21,10 @@ class NotesFormView extends StatefulWidget {
   });
 
   @override
-  State<NotesFormView> createState() => _NotesFormViewState();
+  State<NotesFormScreen> createState() => _NotesFormScreenState();
 }
 
-class _NotesFormViewState extends State<NotesFormView> {
+class _NotesFormScreenState extends State<NotesFormScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _campaignIdController;
@@ -49,7 +49,6 @@ class _NotesFormViewState extends State<NotesFormView> {
     final n = widget.note;
     final campaignVm = context.read<CampaignViewModel>();
 
-    // Se a lista de campanhas ainda estiver vazia, tenta carregar para o seletor rápido
     if (campaignVm.campaigns.isEmpty && !campaignVm.isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<CampaignViewModel>().carregarCampanhas();
@@ -100,21 +99,23 @@ class _NotesFormViewState extends State<NotesFormView> {
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final body = {
-      'campaignId': _campaignIdController.text.trim(),
-      'sessionId': _sessionIdController.text.trim(),
-      'authorId': _authorIdController.text.trim(),
-      'titulo': _tituloController.text.trim(),
-      'categoria': _categoria.name,
-      'visibilidade': _visibilidade.name,
-      'fixado': _fixado,
-      'conteudo': _conteudoController.text.trim(),
-    };
+    final noteEntity = Notes(
+      id: widget.note?.id ?? '',
+      campaignId: _campaignIdController.text.trim(),
+      sessionId: _sessionIdController.text.trim(),
+      authorId: _authorIdController.text.trim(),
+      titulo: _tituloController.text.trim(),
+      categoria: _categoria,
+      visibilidade: _visibilidade,
+      fixado: _fixado,
+      conteudo: _conteudoController.text.trim(),
+      criadoEm: widget.note?.criadoEm ?? DateTime.now(),
+    );
 
     final viewModel = context.read<NotesViewModel>();
     final sucesso = _isEdicao
-        ? await viewModel.atualizarNota(widget.note!.id, body)
-        : await viewModel.criarNota(body);
+        ? await viewModel.atualizarNota(widget.note!.id, noteEntity)
+        : await viewModel.criarNota(noteEntity);
 
     if (!mounted) return;
 
@@ -157,7 +158,6 @@ class _NotesFormViewState extends State<NotesFormView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Atalho opcional: escolhe uma campanha carregada para preencher IDs
               if (campaigns.isNotEmpty) ...[
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(
@@ -186,7 +186,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 ),
                 const SizedBox(height: 16),
               ],
-
               TextFormField(
                 controller: _campaignIdController,
                 decoration: const InputDecoration(
@@ -197,7 +196,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 validator: (value) => _validarUuid(value, 'ID da campanha'),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _sessionIdController,
                 decoration: const InputDecoration(
@@ -209,7 +207,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 validator: (value) => _validarUuid(value, 'ID da sessão'),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _authorIdController,
                 decoration: const InputDecoration(
@@ -220,7 +217,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 validator: (value) => _validarUuid(value, 'ID do autor'),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _tituloController,
                 maxLength: 100,
@@ -240,7 +236,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 },
               ),
               const SizedBox(height: 12),
-
               Row(
                 children: [
                   Expanded(
@@ -287,7 +282,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 ],
               ),
               const SizedBox(height: 12),
-
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Fixar anotação (Post-it em destaque)'),
@@ -299,7 +293,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 onChanged: (value) => setState(() => _fixado = value),
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: _conteudoController,
                 maxLines: 5,
@@ -317,7 +310,6 @@ class _NotesFormViewState extends State<NotesFormView> {
                 },
               ),
               const SizedBox(height: 20),
-
               ElevatedButton.icon(
                 onPressed: isLoading ? null : _salvar,
                 style: ElevatedButton.styleFrom(

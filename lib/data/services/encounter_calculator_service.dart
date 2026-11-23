@@ -2,22 +2,21 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../models/encounter.dart';
+import '../dtos/encounter_dto.dart';
 import 'api_config.dart';
 
 class EncounterCalculatorService {
   final String _endpoint = '${ApiConfig.baseUrl}/encounters/calcular';
 
-  // POST /encounters/calcular
-  Future<EncounterResponse> calcularEncontro(EncounterRequest request) async {
+  Future<EncounterResponseDto> calcularEncontro(EncounterRequestDto dto) async {
     final response = await http.post(
       Uri.parse(_endpoint),
       headers: ApiConfig.defaultHeaders,
-      body: jsonEncode(request.toJson()),
+      body: jsonEncode(dto.toJson()),
     );
 
     if (response.statusCode == 200) {
-      return EncounterResponse.fromJson(
+      return EncounterResponseDto.fromJson(
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>,
       );
     } else {

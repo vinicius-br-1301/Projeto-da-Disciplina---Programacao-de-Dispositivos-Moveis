@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/campaign.dart';
-import '../viewmodels/campaign_viewmodel.dart';
+import '../../domain/entities/campaign.dart';
+import '../../domain/entities/enums.dart';
+import 'campaign_view_model.dart';
 
-class CampaignFormView extends StatefulWidget {
+class CampaignFormScreen extends StatefulWidget {
   final Campaign? campaign;
   final String? mestreIdInicial;
 
-  const CampaignFormView({super.key, this.campaign, this.mestreIdInicial});
+  const CampaignFormScreen({super.key, this.campaign, this.mestreIdInicial});
 
   @override
-  State<CampaignFormView> createState() => _CampaignFormViewState();
+  State<CampaignFormScreen> createState() => _CampaignFormScreenState();
 }
 
-class _CampaignFormViewState extends State<CampaignFormView> {
+class _CampaignFormScreenState extends State<CampaignFormScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _mestreIdController;
@@ -62,19 +63,23 @@ class _CampaignFormViewState extends State<CampaignFormView> {
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final body = {
-      'mestreId': _mestreIdController.text.trim(),
-      'titulo': _tituloController.text.trim(),
-      'descricao': _descricaoController.text.trim(),
-      'sistema': _sistemaController.text.trim(),
-      'minJogadores': int.parse(_minJogadoresController.text.trim()),
-      'maxJogadores': int.parse(_maxJogadoresController.text.trim()),
-    };
+    final campaignEntity = Campaign(
+      id: widget.campaign?.id ?? '',
+      mestreId: _mestreIdController.text.trim(),
+      titulo: _tituloController.text.trim(),
+      descricao: _descricaoController.text.trim(),
+      sistema: _sistemaController.text.trim(),
+      status: widget.campaign?.status ?? StatusEnum.ATIVA,
+      minJogadores: int.parse(_minJogadoresController.text.trim()),
+      maxJogadores: int.parse(_maxJogadoresController.text.trim()),
+      capacidadeDescricao: widget.campaign?.capacidadeDescricao ?? '',
+      criadaEm: widget.campaign?.criadaEm ?? DateTime.now(),
+    );
 
     final viewModel = context.read<CampaignViewModel>();
     final sucesso = _isEdicao
-        ? await viewModel.atualizarCampanha(widget.campaign!.id, body)
-        : await viewModel.criarCampanha(body);
+        ? await viewModel.atualizarCampanha(widget.campaign!.id, campaignEntity)
+        : await viewModel.criarCampanha(campaignEntity);
 
     if (!mounted) return;
 

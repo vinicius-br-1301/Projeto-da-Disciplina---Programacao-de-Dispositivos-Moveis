@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-import 'campaign_list_view.dart';
-import 'encounter_calculator_view.dart';
-import 'notes_list_view.dart';
+import '../campaign_screen/campaign_list_screen.dart';
+import '../encounter_screen/encounter_calculator_screen.dart';
+import '../notes_screen/notes_list_screen.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeScreenState extends State<HomeScreen> {
   int _indiceAtual = 0;
 
   final List<String> _titulos = const [
@@ -21,9 +21,9 @@ class _HomeViewState extends State<HomeView> {
   ];
 
   final List<Widget> _telas = const [
-    CampaignListView(),
-    NotesListView(),
-    EncounterCalculatorView(),
+    CampaignListScreen(),
+    NotesListScreen(),
+    EncounterCalculatorScreen(),
   ];
 
   void _selecionarAba(int novoIndice) {
@@ -75,7 +75,7 @@ class _HomeViewState extends State<HomeView> {
               selected: _indiceAtual == 0,
               onTap: () {
                 _selecionarAba(0);
-                Navigator.pop(context); // Fecha o Drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(

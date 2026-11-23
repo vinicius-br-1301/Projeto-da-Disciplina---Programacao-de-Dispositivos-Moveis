@@ -1,49 +1,48 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/encounter.dart';
-import '../services/encounter_calculator_service.dart';
+import '../../domain/entities/encounter.dart';
+import '../../domain/repositories/encounter_repository_interface.dart';
 
 class EncounterViewModel extends ChangeNotifier {
-  final EncounterCalculatorService _service = EncounterCalculatorService();
+  final EncounterRepositoryInterface _repository;
+
+  EncounterViewModel(this._repository);
 
   final List<int> _niveisJogadores = [];
   final List<int> _xpMonstros = [];
 
+  EncounterResponse? _resultado;
+  bool _isLoading = false;
+  String? _errorMessage;
+
   List<int> get niveisJogadores => List.unmodifiable(_niveisJogadores);
   List<int> get xpMonstros => List.unmodifiable(_xpMonstros);
-
-  EncounterResponse? resultado;
-  bool isLoading = false;
-  String? errorMessage;
+  EncounterResponse? get resultado => _resultado;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   void adicionarJogador(int nivel) {
-    if (nivel < 1) return;
     _niveisJogadores.add(nivel);
-    resultado = null;
-    errorMessage = null;
+    _errorMessage = null;
     notifyListeners();
   }
 
   void removerJogador(int index) {
     if (index >= 0 && index < _niveisJogadores.length) {
       _niveisJogadores.removeAt(index);
-      resultado = null;
       notifyListeners();
     }
   }
 
   void adicionarMonstro(int xp) {
-    if (xp < 0) return;
     _xpMonstros.add(xp);
-    resultado = null;
-    errorMessage = null;
+    _errorMessage = null;
     notifyListeners();
   }
 
   void removerMonstro(int index) {
     if (index >= 0 && index < _xpMonstros.length) {
       _xpMonstros.removeAt(index);
-      resultado = null;
       notifyListeners();
     }
   }
@@ -51,34 +50,35 @@ class EncounterViewModel extends ChangeNotifier {
   void limpar() {
     _niveisJogadores.clear();
     _xpMonstros.clear();
-    resultado = null;
-    errorMessage = null;
+    _resultado = null;
+    _errorMessage = null;
     notifyListeners();
   }
 
   Future<void> calcularEncontro() async {
     if (_niveisJogadores.isEmpty || _xpMonstros.isEmpty) {
-      errorMessage =
+      _errorMessage =
           'Adicione pelo menos 1 jogador e 1 monstro antes de calcular.';
+      _resultado = null;
       notifyListeners();
       return;
     }
 
-    try {
-      isLoading = true;
-      errorMessage = null;
-      notifyListeners();
+    _isLoading = true;
+    _errorMessage = null;
+    _resultado = null;
+    notifyListeners();
 
+    try {
       final request = EncounterRequest(
-        niveisJogadores: List.from(_niveisJogadores),
-        xpMonstros: List.from(_xpMonstros),
+        niveisJogadores: List<int>.from(_niveisJogadores),
+        xpMonstros: List<int>.from(_xpMonstros),
       );
-      resultado = await _service.calcularEncontro(request);
+      _resultado = await _repository.calcularEncontro(request);
     } catch (e) {
-      errorMessage = e.toString();
-      resultado = null;
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }

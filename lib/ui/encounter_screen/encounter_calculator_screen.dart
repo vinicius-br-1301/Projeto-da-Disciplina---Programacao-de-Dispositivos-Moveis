@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/encounter.dart';
-import '../viewmodels/encounter_viewmodel.dart';
+import '../../domain/entities/encounter.dart';
+import 'encounter_view_model.dart';
 
-class EncounterCalculatorView extends StatefulWidget {
-  const EncounterCalculatorView({super.key});
+class EncounterCalculatorScreen extends StatefulWidget {
+  const EncounterCalculatorScreen({super.key});
 
   @override
-  State<EncounterCalculatorView> createState() =>
-      _EncounterCalculatorViewState();
+  State<EncounterCalculatorScreen> createState() =>
+      _EncounterCalculatorScreenState();
 }
 
-class _EncounterCalculatorViewState extends State<EncounterCalculatorView> {
+class _EncounterCalculatorScreenState extends State<EncounterCalculatorScreen> {
   final _jogadorFormKey = GlobalKey<FormState>();
   final _monstroFormKey = GlobalKey<FormState>();
 
@@ -68,15 +68,10 @@ class _EncounterCalculatorViewState extends State<EncounterCalculatorView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Seção dos Jogadores
               _buildSecaoJogadores(viewModel),
               const SizedBox(height: 16),
-
-              // 2. Seção dos Monstros
               _buildSecaoMonstros(viewModel),
               const SizedBox(height: 20),
-
-              // 3. Botões de Ação
               Row(
                 children: [
                   Expanded(
@@ -128,8 +123,6 @@ class _EncounterCalculatorViewState extends State<EncounterCalculatorView> {
                   ),
                 ],
               ),
-
-              // 4. Mensagem de Erro (se houver)
               if (viewModel.errorMessage != null) ...[
                 const SizedBox(height: 16),
                 Card(
@@ -155,8 +148,6 @@ class _EncounterCalculatorViewState extends State<EncounterCalculatorView> {
                   ),
                 ),
               ],
-
-              // 5. Card de Resultado da API
               if (viewModel.resultado != null) ...[
                 const SizedBox(height: 20),
                 _buildCardResultado(viewModel.resultado!),
@@ -241,7 +232,7 @@ class _EncounterCalculatorViewState extends State<EncounterCalculatorView> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: vm.niveisJogadores.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final nivel = vm.niveisJogadores[index];
                   return ListTile(
@@ -341,7 +332,7 @@ class _EncounterCalculatorViewState extends State<EncounterCalculatorView> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: vm.xpMonstros.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final xp = vm.xpMonstros[index];
                   return ListTile(
